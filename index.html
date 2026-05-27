@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kaveen Hansith — Frontend Developer & Creator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            body: ['DM Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            dark:  { bg: '#080808', surface: '#0f0f0f', border: '#1c1c1c', text: '#efefef', muted: '#525252' },
+            light: { bg: '#f5f4f1', surface: '#ffffff', border: '#e2dfd9', text: '#111110', muted: '#888480' },
+          },
+          animation: {
+            'fade-up':    'fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards',
+            'fade-in':    'fadeIn 0.5s ease forwards',
+            'pulse-slow': 'pulse 3s ease-in-out infinite',
+            'float':      'float 7s ease-in-out infinite',
+            'spin-slow':  'spin 12s linear infinite',
+          },
+          keyframes: {
+            fadeUp:  { '0%': { opacity:'0', transform:'translateY(22px)' }, '100%': { opacity:'1', transform:'translateY(0)' } },
+            fadeIn:  { '0%': { opacity:'0' }, '100%': { opacity:'1' } },
+            float:   { '0%,100%': { transform:'translateY(0px)' }, '50%': { transform:'translateY(-10px)' } },
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    /* ── Global transitions ── */
+    *, *::before, *::after {
+      transition-property: background-color, border-color, color, box-shadow;
+      transition-duration: 250ms;
+      transition-timing-function: ease;
+    }
+    a, button { transition-property: all !important; transition-duration: 200ms !important; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+
+    /* ── Dot grid ── */
+    .dot-grid {
+      background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    /* ── Noise ── */
+    .noise-overlay {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Avatar ring ── */
+    .avatar-ring {
+      background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        #a78bfa 20%,
+        #60a5fa 40%,
+        #34d399 60%,
+        transparent 80%
+      );
+      animation: spin 4s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Status dot ring pulse ── */
+    @keyframes ring-pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,.45); }
+      50%      { box-shadow: 0 0 0 5px rgba(74,222,128,0); }
+    }
+    .status-dot { animation: ring-pulse 2.5s ease-in-out infinite; }
+
+    /* ── Link cards ── */
+    .link-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .link-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      background: radial-gradient(600px circle at var(--mx,50%) var(--my,50%), rgba(167,139,250,.07), transparent 40%);
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .link-card:hover::before { opacity: 1; }
+    .link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px -8px rgba(0,0,0,.35); }
+    .link-card:active { transform: scale(0.98) translateY(0); }
+
+    /* Light mode card glow */
+    html:not(.dark) .link-card:hover {
+      box-shadow: 0 8px 24px -6px rgba(0,0,0,.12);
+    }
+    html:not(.dark) .link-card::before {
+      background: radial-gradient(600px circle at var(--mx,50%) var(--my,50%), rgba(100,80,200,.05), transparent 40%);
+    }
+
+    /* ── Featured card ── */
+    .featured-card { position: relative; overflow: hidden; }
+    .featured-card::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(167,139,250,.25) 0%, transparent 50%, rgba(96,165,250,.15) 100%);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+    .featured-card:hover::after { opacity: 1; }
+    .featured-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px -10px rgba(0,0,0,.4); }
+
+    /* ── Social icons ── */
+    .social-icon:hover { transform: translateY(-3px) scale(1.08); }
+
+    /* ── Theme toggle ── */
+    #themeToggle:hover { transform: scale(1.08) rotate(15deg); }
+
+    /* ── Stat pills ── */
+    .stat-pill:hover { transform: translateY(-2px); }
+
+    /* ── 2-col link grid ── */
+    @media (min-width: 480px) {
+      .links-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .links-grid .link-full { grid-column: 1 / -1; }
+    }
+
+    /* ── Gradient text ── */
+    .gradient-name {
+      background: linear-gradient(135deg, #efefef 30%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    html:not(.dark) .gradient-name {
+      background: linear-gradient(135deg, #111110 30%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    /* ── Separator line ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, currentColor, transparent);
+      opacity: 0.1;
+    }
+
+    /* ── Featured preview bars ── */
+    @keyframes bar-grow {
+      from { transform: scaleY(0.3); opacity: 0.4; }
+      to   { transform: scaleY(1);   opacity: 1;   }
+    }
+    .bar { animation: bar-grow 0.8s ease both; }
+  </style>
+</head>
+
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text font-body min-h-screen overflow-x-hidden">
+
+  <!-- ── Background layers ── -->
+  <!-- Top glow orb -->
+  <div class="fixed top-[-60px] left-1/2 -translate-x-1/2 w-[500px] h-[340px] rounded-full pointer-events-none animate-float"
+       style="background: radial-gradient(ellipse at center, rgba(167,139,250,0.06) 0%, rgba(96,165,250,0.03) 50%, transparent 70%); filter: blur(70px);"></div>
+  <!-- Bottom orb -->
+  <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-[400px] h-[250px] rounded-full pointer-events-none"
+       style="background: radial-gradient(ellipse at center, rgba(52,211,153,0.04) 0%, transparent 70%); filter: blur(80px);"></div>
+  <!-- Dot grid -->
+  <div class="fixed inset-0 dot-grid text-light-text/[0.022] dark:text-dark-text/[0.022] pointer-events-none"></div>
+  <!-- Noise grain -->
+  <div class="fixed inset-0 noise-overlay pointer-events-none opacity-[0.015] dark:opacity-[0.028]"></div>
+
+  <!-- ── Theme toggle ── -->
+  <nav class="fixed top-0 right-0 p-4 z-50">
+    <button id="themeToggle"
+      class="w-9 h-9 rounded-xl border border-light-border dark:border-dark-border
+             bg-light-surface/90 dark:bg-dark-surface/90 backdrop-blur-sm shadow-sm
+             flex items-center justify-center cursor-pointer">
+      <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-light-text dark:text-dark-text">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+      </svg>
+      <svg id="moonIcon" class="hidden text-light-text dark:text-dark-text" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="relative min-h-screen flex flex-col items-center px-4 pt-16 pb-14">
+    <div class="w-full max-w-[420px] mx-auto flex flex-col gap-7">
+
+      <!-- ── PROFILE HERO ── -->
+      <section class="flex flex-col items-center text-center gap-4 pt-5">
+
+        <!-- Avatar with spinning gradient ring -->
+        <div class="opacity-0 animate-fade-up" style="animation-delay:0.05s;animation-fill-mode:forwards">
+          <div class="relative inline-flex items-center justify-center">
+            <!-- Spinning conic gradient ring -->
+            <div class="avatar-ring absolute w-[104px] h-[104px] rounded-full"></div>
+            <!-- White gap ring -->
+            <div class="absolute w-[96px] h-[96px] rounded-full bg-light-bg dark:bg-dark-bg"></div>
+            <!-- Avatar -->
+            <img
+              src="https://api.dicebear.com/8.x/notionists/svg?seed=kaveen&backgroundColor=transparent"
+              alt="Kaveen Hansith"
+              class="relative z-10 w-[88px] h-[88px] rounded-full object-cover bg-light-surface dark:bg-dark-surface"
+            />
+            <!-- Status dot -->
+            <div class="status-dot absolute bottom-[5px] right-[5px] z-20 w-[14px] h-[14px] bg-emerald-400 rounded-full border-2 border-light-bg dark:border-dark-bg"></div>
+          </div>
+        </div>
+
+        <!-- Name + role + location -->
+        <div class="opacity-0 animate-fade-up flex flex-col gap-1.5" style="animation-delay:0.15s;animation-fill-mode:forwards">
+          <h1 class="gradient-name font-display text-[2rem] leading-tight font-semibold tracking-[-0.02em]">
+            Kaveen Hansith
+          </h1>
+          <p class="font-body text-[13px] font-[400] text-light-muted dark:text-dark-muted tracking-wide">
+            Frontend Developer &amp; Creator
+          </p>
+          <span class="font-mono text-[10px] text-light-muted/70 dark:text-dark-muted/70 uppercase tracking-[0.14em]">
+            Sri Lanka &nbsp;·&nbsp; 🇱🇰
+          </span>
+        </div>
+
+        <!-- Bio -->
+        <div class="opacity-0 animate-fade-up" style="animation-delay:0.22s;animation-fill-mode:forwards">
+          <p class="font-body text-[13.5px] leading-relaxed text-light-muted dark:text-dark-muted max-w-[270px]">
+            I build fast, beautiful websites with Next.js &amp; Tailwind.<br>
+            Building in public — follow the journey.
+          </p>
+        </div>
+
+        <!-- Social icons -->
+        <div class="opacity-0 animate-fade-up flex items-center gap-2 flex-wrap justify-center" style="animation-delay:0.3s;animation-fill-mode:forwards">
+          <!-- YouTube -->
+          <a href="#" target="_blank" aria-label="YouTube"
+             class="social-icon w-9 h-9 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface flex items-center justify-center text-light-muted dark:text-dark-muted hover:text-[#ff0000] hover:border-[#ff0000]/30">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+          <!-- GitHub -->
+          <a href="#" target="_blank" aria-label="GitHub"
+             class="social-icon w-9 h-9 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface flex items-center justify-center text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text hover:border-light-text/30 dark:hover:border-dark-text/30">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+          </a>
+          <!-- X/Twitter -->
+          <a href="#" target="_blank" aria-label="X / Twitter"
+             class="social-icon w-9 h-9 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface flex items-center justify-center text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text hover:border-light-text/30 dark:hover:border-dark-text/30">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <!-- Instagram -->
+          <a href="#" target="_blank" aria-label="Instagram"
+             class="social-icon w-9 h-9 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface flex items-center justify-center text-light-muted dark:text-dark-muted hover:text-[#e1306c] hover:border-[#e1306c]/30">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+          </a>
+          <!-- LinkedIn -->
+          <a href="#" target="_blank" aria-label="LinkedIn"
+             class="social-icon w-9 h-9 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface flex items-center justify-center text-light-muted dark:text-dark-muted hover:text-[#0077b5] hover:border-[#0077b5]/30">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <!-- TikTok -->
+          <a href="#" target="_blank" aria-label="TikTok"
+             class="social-icon w-9 h-9 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface flex items-center justify-center text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text hover:border-light-text/30 dark:hover:border-dark-text/30">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- ── FEATURED CARD ── -->
+      <div class="opacity-0 animate-fade-up" style="animation-delay:0.36s;animation-fill-mode:forwards">
+        <a href="#" target="_blank"
+           class="featured-card block w-full rounded-2xl overflow-hidden border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface cursor-pointer"
+           style="transition: all 0.3s cubic-bezier(0.16,1,0.3,1);">
+
+          <!-- Preview area -->
+          <div class="relative h-[110px] overflow-hidden"
+               style="background: linear-gradient(135deg, #0d0d1a 0%, #12101e 50%, #0a0f1a 100%);">
+            <!-- Ambient glows -->
+            <div class="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 rounded-full"
+                 style="background:radial-gradient(circle,rgba(167,139,250,.2) 0%,transparent 70%);filter:blur(20px)"></div>
+            <div class="absolute top-1/2 right-1/4 -translate-y-1/2 w-24 h-24 rounded-full"
+                 style="background:radial-gradient(circle,rgba(96,165,250,.15) 0%,transparent 70%);filter:blur(16px)"></div>
+
+            <!-- Fake UI preview — code editor mockup -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-[260px] rounded-lg overflow-hidden border border-white/10"
+                   style="background:rgba(255,255,255,0.04);backdrop-filter:blur(4px)">
+                <!-- Title bar -->
+                <div class="flex items-center gap-1.5 px-3 py-2 border-b border-white/10">
+                  <div class="w-2 h-2 rounded-full bg-red-400/60"></div>
+                  <div class="w-2 h-2 rounded-full bg-yellow-400/60"></div>
+                  <div class="w-2 h-2 rounded-full bg-green-400/60"></div>
+                  <span class="ml-2 font-mono text-[9px] text-white/30">page.tsx</span>
+                </div>
+                <!-- Code lines -->
+                <div class="px-3 py-2.5 flex flex-col gap-1.5">
+                  <div class="flex gap-2 items-center">
+                    <div class="h-1.5 w-8 rounded-full bg-purple-400/50"></div>
+                    <div class="h-1.5 w-16 rounded-full bg-blue-300/40"></div>
+                    <div class="h-1.5 w-10 rounded-full bg-white/15"></div>
+                  </div>
+                  <div class="flex gap-2 items-center ml-4">
+                    <div class="h-1.5 w-12 rounded-full bg-emerald-400/50"></div>
+                    <div class="h-1.5 w-8 rounded-full bg-white/15"></div>
+                  </div>
+                  <div class="flex gap-2 items-center ml-4">
+                    <div class="h-1.5 w-6 rounded-full bg-purple-400/50"></div>
+                    <div class="h-1.5 w-20 rounded-full bg-blue-300/40"></div>
+                  </div>
+                  <div class="flex gap-2 items-center">
+                    <div class="h-1.5 w-4 rounded-full bg-white/20"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Featured badge -->
+            <div class="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-purple-400/30 bg-purple-500/10">
+              <div class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse-slow"></div>
+              <span class="font-mono text-[9px] text-purple-300 uppercase tracking-[0.1em]">New</span>
+            </div>
+          </div>
+
+          <!-- Card content -->
+          <div class="p-4 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="font-mono text-[9px] text-light-muted dark:text-dark-muted uppercase tracking-[0.12em] mb-1">
+                Latest Release
+              </div>
+              <div class="font-display text-[15px] font-semibold text-light-text dark:text-dark-text leading-tight">
+                Prism — SaaS Template
+              </div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-1">
+                Next.js 14 + Tailwind &nbsp;·&nbsp; <span class="text-emerald-500 dark:text-emerald-400">$39</span>
+              </div>
+            </div>
+            <div class="flex-shrink-0 w-8 h-8 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg flex items-center justify-center text-light-muted dark:text-dark-muted group-hover:translate-x-0.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- ── LINKS ── -->
+      <div class="opacity-0 animate-fade-up" style="animation-delay:0.43s;animation-fill-mode:forwards">
+        <div id="linksContainer" class="flex flex-col gap-2.5">
+
+          <!-- YouTube Channel — full -->
+          <a href="#" target="_blank"
+             class="link-card link-full w-full flex items-center gap-3 p-3.5 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface group cursor-pointer"
+             style="transition: all 0.25s cubic-bezier(0.16,1,0.3,1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-red-50 dark:bg-red-950/30 border border-red-200/50 dark:border-red-500/20 text-red-500 dark:text-red-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-body font-medium text-[13px] text-light-text dark:text-dark-text leading-tight">YouTube Channel</div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-0.5">Watch my latest videos</div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-light-muted dark:text-dark-muted flex-shrink-0 group-hover:translate-x-1 group-hover:text-light-text dark:group-hover:text-dark-text transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+
+          <!-- Digital Products -->
+          <a href="#" target="_blank"
+             class="link-card w-full flex items-center gap-3 p-3.5 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface group cursor-pointer"
+             style="transition: all 0.25s cubic-bezier(0.16,1,0.3,1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-purple-50 dark:bg-purple-950/30 border border-purple-200/50 dark:border-purple-500/20 text-purple-500 dark:text-purple-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-body font-medium text-[13px] text-light-text dark:text-dark-text leading-tight">Digital Products</div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-0.5">Templates &amp; UI kits</div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-light-muted dark:text-dark-muted flex-shrink-0 group-hover:translate-x-1 group-hover:text-light-text dark:group-hover:text-dark-text transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+
+          <!-- GitHub -->
+          <!-- <a href="#" target="_blank"
+             class="link-card w-full flex items-center gap-3 p-3.5 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface group cursor-pointer"
+             style="transition: all 0.25s cubic-bezier(0.16,1,0.3,1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-light-bg dark:bg-dark-bg border border-light-border dark:border-dark-border text-light-muted dark:text-dark-muted group-hover:text-light-text dark:group-hover:text-dark-text transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-body font-medium text-[13px] text-light-text dark:text-dark-text leading-tight">GitHub</div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-0.5">Open source work</div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-light-muted dark:text-dark-muted flex-shrink-0 group-hover:translate-x-1 group-hover:text-light-text dark:group-hover:text-dark-text transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a> -->
+
+          <!-- Instagram -->
+          <a href="#" target="_blank"
+             class="link-card w-full flex items-center gap-3 p-3.5 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface group cursor-pointer"
+             style="transition: all 0.25s cubic-bezier(0.16,1,0.3,1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-pink-50 dark:bg-pink-950/30 border border-pink-200/50 dark:border-pink-500/20 text-pink-500 dark:text-pink-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-body font-medium text-[13px] text-light-text dark:text-dark-text leading-tight">Instagram</div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-0.5">Follow the journey</div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-light-muted dark:text-dark-muted flex-shrink-0 group-hover:translate-x-1 group-hover:text-light-text dark:group-hover:text-dark-text transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+
+          <!-- TikTok -->
+          <a href="#" target="_blank"
+             class="link-card w-full flex items-center gap-3 p-3.5 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface group cursor-pointer"
+             style="transition: all 0.25s cubic-bezier(0.16,1,0.3,1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-light-bg dark:bg-dark-bg border border-light-border dark:border-dark-border text-light-muted dark:text-dark-muted group-hover:text-light-text dark:group-hover:text-dark-text transition-colors">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-body font-medium text-[13px] text-light-text dark:text-dark-text leading-tight">TikTok</div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-0.5">Short tutorials &amp; tips</div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-light-muted dark:text-dark-muted flex-shrink-0 group-hover:translate-x-1 group-hover:text-light-text dark:group-hover:text-dark-text transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+
+          <!-- LinkedIn -->
+          <a href="#" target="_blank"
+             class="link-card w-full flex items-center gap-3 p-3.5 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface group cursor-pointer"
+             style="transition: all 0.25s cubic-bezier(0.16,1,0.3,1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-50 dark:bg-blue-950/30 border border-blue-200/50 dark:border-blue-500/20 text-blue-500 dark:text-blue-400">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-body font-medium text-[13px] text-light-text dark:text-dark-text leading-tight">LinkedIn</div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-0.5">Connect professionally</div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-light-muted dark:text-dark-muted flex-shrink-0 group-hover:translate-x-1 group-hover:text-light-text dark:group-hover:text-dark-text transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+
+          <!-- Read My Blog — full -->
+          <a href="#" target="_blank"
+             class="link-card link-full w-full flex items-center gap-3 p-3.5 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface group cursor-pointer"
+             style="transition: all 0.25s cubic-bezier(0.16,1,0.3,1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-500/20 text-amber-500 dark:text-amber-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-body font-medium text-[13px] text-light-text dark:text-dark-text leading-tight">Read My Blog</div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-0.5">Articles &amp; tutorials</div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-light-muted dark:text-dark-muted flex-shrink-0 group-hover:translate-x-1 group-hover:text-light-text dark:group-hover:text-dark-text transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+
+          <!-- Email Me — full with copy -->
+          <div class="link-full w-full flex items-center gap-3 p-3.5 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface group"
+               style="transition: all 0.25s cubic-bezier(0.16,1,0.3,1);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/50 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-body font-medium text-[13px] text-light-text dark:text-dark-text leading-tight">Email Me</div>
+              <div class="font-mono text-[10px] text-light-muted dark:text-dark-muted mt-0.5">hello@kaveen.dev</div>
+            </div>
+            <button id="copyBtn" onclick="copyEmail()"
+              class="font-mono text-[9px] uppercase tracking-[0.1em] px-2.5 py-1.5 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text hover:border-light-text/30 dark:hover:border-dark-text/30 flex-shrink-0 cursor-pointer">
+              Copy
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── STATS ROW ── -->
+      <div class="opacity-0 animate-fade-up" style="animation-delay:0.55s;animation-fill-mode:forwards">
+        <!-- Divider -->
+        <div class="divider text-light-text dark:text-dark-text mb-5"></div>
+        <div class="flex justify-center gap-2.5 flex-wrap">
+          <div class="stat-pill flex items-center gap-2 px-4 py-2 rounded-full border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface cursor-default" style="transition:all .2s ease">
+            <span class="font-mono text-xs font-medium text-light-text dark:text-dark-text">2+</span>
+            <span class="font-mono text-[9px] text-light-muted dark:text-dark-muted uppercase tracking-[0.1em]">Years building</span>
+          </div>
+          <div class="stat-pill flex items-center gap-2 px-4 py-2 rounded-full border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface cursor-default" style="transition:all .2s ease">
+            <span class="font-mono text-xs font-medium text-light-text dark:text-dark-text">10+</span>
+            <span class="font-mono text-[9px] text-light-muted dark:text-dark-muted uppercase tracking-[0.1em]">Projects shipped</span>
+          </div>
+          <div class="stat-pill flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/30 dark:border-emerald-500/25 bg-emerald-50 dark:bg-emerald-950/25 cursor-default" style="transition:all .2s ease">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-slow flex-shrink-0"></span>
+            <span class="font-mono text-[9px] text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.1em]">Open to work</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FOOTER ── -->
+      <footer class="opacity-0 animate-fade-up text-center pt-1 pb-2" style="animation-delay:0.6s;animation-fill-mode:forwards">
+        <p class="font-mono text-[10px] text-light-muted dark:text-dark-muted">
+          Built with care &nbsp;·&nbsp;
+          <a href="#" class="hover:text-light-text dark:hover:text-dark-text transition-colors underline underline-offset-2 decoration-light-border dark:decoration-dark-border hover:decoration-current">
+            Get this template
+          </a>
+        </p>
+      </footer>
+
+    </div>
+  </main>
+
+  <script>
+    // ── Theme toggle ──
+    const html = document.documentElement
+    const toggleBtn = document.getElementById('themeToggle')
+    const sunIcon = document.getElementById('sunIcon')
+    const moonIcon = document.getElementById('moonIcon')
+
+    const savedTheme = localStorage.getItem('theme') || 'dark'
+    applyTheme(savedTheme)
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        html.classList.add('dark')
+        sunIcon.classList.remove('hidden')
+        moonIcon.classList.add('hidden')
+      } else {
+        html.classList.remove('dark')
+        sunIcon.classList.add('hidden')
+        moonIcon.classList.remove('hidden')
+      }
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      const isDark = html.classList.contains('dark')
+      const next = isDark ? 'light' : 'dark'
+      localStorage.setItem('theme', next)
+      applyTheme(next)
+    })
+
+    // ── Copy email ──
+    function copyEmail() {
+      navigator.clipboard.writeText('hello@kaveen.dev').then(() => {
+        const btn = document.getElementById('copyBtn')
+        btn.textContent = 'Copied ✓'
+        btn.style.color = 'rgb(52,211,153)'
+        btn.style.borderColor = 'rgba(52,211,153,.35)'
+        setTimeout(() => {
+          btn.textContent = 'Copy'
+          btn.style.color = ''
+          btn.style.borderColor = ''
+        }, 2000)
+      })
+    }
+
+    // ── Mouse-tracked radial glow on cards ──
+    document.querySelectorAll('.link-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect()
+        card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%')
+        card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%')
+      })
+    })
+
+    // ── Click feedback ──
+    document.querySelectorAll('a[href], .link-card').forEach(el => {
+      el.addEventListener('mousedown', function() { this.style.transform = 'scale(0.97)' })
+      el.addEventListener('mouseup',   function() { this.style.transform = '' })
+      el.addEventListener('mouseleave',function() { this.style.transform = '' })
+    })
+
+    // ── 2-col grid layout ──
+    function layoutLinks() {
+      const grid = document.getElementById('linksContainer')
+      if (!grid) return
+      const isWide = window.innerWidth >= 480
+      if (isWide) {
+        grid.style.display = 'grid'
+        grid.style.gridTemplateColumns = '1fr 1fr'
+        grid.style.gap = '10px'
+        grid.querySelectorAll('.link-full').forEach(el => el.style.gridColumn = '1 / -1')
+      } else {
+        grid.style.display = 'flex'
+        grid.style.flexDirection = 'column'
+        grid.querySelectorAll('.link-full').forEach(el => el.style.gridColumn = '')
+      }
+    }
+    layoutLinks()
+    window.addEventListener('resize', layoutLinks)
+  </script>
+</body>
+</html>
